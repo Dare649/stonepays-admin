@@ -1,95 +1,100 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import { MdOutlineMail } from "react-icons/md";
+import { GoEye, GoEyeClosed } from "react-icons/go";
+import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { startLoading, stopLoading } from '@/redux/slice/loadingSlice';
+import { RootState } from '@/redux/store';
+
+const Signin = () => {
+  const [password, setPassword] = useState(false);
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const isLoading = useSelector((state: RootState) => state.loading.isLoading);
+
+  // function to toggle password visibility
+  const handlePassword = () => setPassword((prev) => !prev);
+
+  // function for sign in
+  const handleSignin = (event: React.FormEvent) => {
+    event.preventDefault(); // Prevents double execution
+
+    dispatch(startLoading());
+
+    setTimeout(() => {
+      router.push('/dashboard');
+      toast.success('Sign in success!');
+      dispatch(stopLoading());
+    }, 3000); // Simulating API delay
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
+    <section className="w-full h-screen flex">
+      {/* Image Section */}
+      <div className="sm:w-0 lg:w-[60%] h-screen flex items-center justify-center">
         <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          src={'/sign.jpg'}
+          alt="stonepay-admin-app"
+          width={800}
+          height={600}
+          className="w-full h-full object-cover"
+          quality={100}
           priority
         />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+      </div>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Form Section */}
+      <div className="sm:w-full lg:w-[40%] h-screen flex items-center justify-center">
+        <div className="w-full max-w-md flex flex-col items-center justify-center p-3">
+          <div className="w-full">
+            <h2 className="text-xl sm:text-2xl text-left font-semibold">
+              Welcome, <br /> Sign in to continue.
+            </h2>
+          </div>
+          <form 
+            className="w-full mt-5"
+            onSubmit={handleSignin}
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+            <div className="w-full flex items-center gap-x-2 border-b-2 border-gray-400 focus-within:border-primary-1 lg:p-2 sm:p-1 mb-5">
+              <input 
+                type="text" 
+                placeholder="Enter your email"
+                className="w-full outline-none border-none bg-transparent"
+              />
+              <MdOutlineMail size={25} className="text-gray-400 font-bold"/>
+            </div>
+            <div className="w-full flex items-center gap-x-2 border-b-2 border-gray-400 focus-within:border-primary-1 lg:p-2 sm:p-1 mb-5">
+              <input 
+                type={ password ? 'text': 'password'} 
+                placeholder="Enter your password"
+                className="w-full outline-none border-none bg-transparent"
+              />
+              <div 
+                onClick={handlePassword}
+                className='cursor-pointer'
+              >
+                {password ? (
+                  <GoEye size={25} className="text-gray-400 font-bold"/>
+                ) : (
+                  <GoEyeClosed size={25} className="text-gray-400 font-bold"/>
+                )}
+              </div>
+            </div>
+            <button
+              type='submit' 
+              className='w-full bg-primary-1 text-white font-bold capitalize text-center hover:border-2 rounded-lg hover:bg-transparent hover:text-primary-1 hover:border-primary-1 py-5 cursor-pointer'
+            >
+              {isLoading ? 'Loading...' : 'Sign In'}
+            </button>
+          </form>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </section>
   );
-}
+};
+
+export default Signin;
