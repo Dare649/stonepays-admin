@@ -2,29 +2,28 @@
 
 import React from "react";
 import Table from "@/components/table/page";
-import { users } from "@/data/dummy";
+import { products } from "@/data/dummy";
 import clsx from "clsx"; // Ensure clsx is installed: `npm install clsx`
 
 type ColumnType = {
-  key: "id" | "first_name" | "last_name" | "status" | "email" | "phone_number";
+  key: "id" | "name" | "category" | "status" | "unit_price";
   label: string;
   render?: (row: any) => React.ReactNode;
 };
 
-const Users = () => {
+const Products = () => {
   const columns: ColumnType[] = [
-    { key: "first_name", label: "First Name" },
-    { key: "last_name", label: "Last Name" },
-    { key: "email", label: "Email" },
-    { key: "phone_number", label: "Phone Number" },
+    { key: "name", label: "product name" },
+    { key: "category", label: "product category" },
+    { key: "unit_price", label: "unit price" },
     {
       key: "status",
       label: "Status",
       render: (row) => (
         <span
           className={clsx("font-medium", {
-            "text-orange-300": row.status.toLowerCase() === "inactive",
-            "text-green-500": row.status.toLowerCase() === "active",
+            "text-orange-300": row.status.toLowerCase() === "out-of-stock",
+            "text-green-500": row.status.toLowerCase() === "in-stock",
           })}
         >
           {row.status}
@@ -52,10 +51,10 @@ const Users = () => {
   return (
     <section className="w-full">
       <div className="w-full border-primary-1 border-2 rounded-2xl lg:mt-20 sm:mt-10 lg:p-5 sm:p-2">
-        <Table data={users} columns={columns} actions={actions} />
+        <Table data={products} columns={columns} actions={actions} />
       </div>
     </section>
   );
 };
 
-export default Users;
+export default Products;
