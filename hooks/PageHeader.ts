@@ -1,18 +1,19 @@
-'use client'
-
+"use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 import { PageTitle } from "@/utils/PageTitle";
 
 const PageHeader = () => {
-    const router = useRouter();
+  const pathname = usePathname(); // Use `usePathname` for Next.js 13+ apps
 
-    useEffect(() => {
-        document.title = PageTitle(router.pathname);
-    }, [router.pathname]);
+  useEffect(() => {
+    if (pathname) {
+      document.title = PageTitle(pathname);
+    }
+  }, [pathname]);
 
-    return null; // Since this component doesn't render anything
-}
+  return null; // Since this component doesn't render anything
+};
 
 export default PageHeader;

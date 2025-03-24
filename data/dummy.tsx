@@ -32,57 +32,7 @@ export const nav = [
 
 
 
-export const order = [
-    {
-        date: '3rd june, 2025',
-        product: 'gift card 1',
-        amount: 10000,
-        id: 1,
-        status: 'pending'
-    },
-    {
-        date: '3rd june, 2025',
-        product: 'gift card 1',
-        amount: 10000,
-        id: 2,
-        status: 'pending'
-    },
-    {
-        date: '3rd june, 2025',
-        product: 'gift card 1',
-        amount: 10000,
-        id: 3,
-        status: 'completed'
-    },
-    {
-        date: '3rd june, 2025',
-        product: 'gift card 1',
-        amount: 10000,
-        id: 4,
-        status: 'completed'
-    },
-    {
-        date: '3rd june, 2025',
-        product: 'gift card 1',
-        amount: 10000,
-        id: 5,
-        status: 'pending'
-    },
-    {
-        date: '3rd june, 2025',
-        product: 'gift card 1',
-        amount: 10000,
-        id: 6,
-        status: 'pending'
-    },
-    {
-        date: '3rd june, 2025',
-        product: 'gift card 1',
-        amount: 10000,
-        id: 7,
-        status: 'completed'
-    },
-]
+export const product_category = ["digital product", "physical product"]
 
 
 export const trx = [

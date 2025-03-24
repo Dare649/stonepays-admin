@@ -1,9 +1,8 @@
-'use client'
+'use client';
 
 import React, { useState, useRef } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-
 
 // Type definitions for the table
 interface Column<T> {
@@ -52,20 +51,20 @@ const Table = <T extends { id: string | number }>({
     <div className="w-full mt-5 overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="text-primary-1 border-x-0 capitalize text-left text-md">
+          <tr className="text-primary-1 border-x-0 capitalize text-md">
             {columns.map((col) => (
-              <th key={col.key.toString()} className="lg:py-5 lg:px-3 sm:px-2 sm:py-3">
+              <th key={col.key.toString()} className="lg:py-3 lg:px-6 sm:px-2 sm:py-3 text-left align-middle">
                 {col.label}
               </th>
             ))}
-            {actions.length > 0 && <th className="lg:py-5 lg:px-3 sm:px-2 sm:py-3">Actions</th>}
+            {actions.length > 0 && <th className="lg:py-3 lg:px-6 sm:px-2 sm:py-3 text-left align-middle">Actions</th>}
           </tr>
         </thead>
         <tbody className="bg-white">
           {currentItems.map((item) => (
             <tr key={item.id} className="border-y-2 border-secondary-1">
               {columns.map((col) => (
-                <td key={col.key.toString()} className="lg:px-3 lg:py-5 sm:px-2 sm:py-3 font-medium capitalize text-secondary-1 text-sm">
+                <td key={`${item.id}-${col.key.toString()}`} className="lg:py-3 lg:px-6 sm:px-2 sm:py-3 text-left align-middle">
                   {col.render ? col.render(item) : (item[col.key] as React.ReactNode)}
                 </td>
               ))}
@@ -95,7 +94,7 @@ const Table = <T extends { id: string | number }>({
         </tbody>
       </table>
 
-      {/* Pagination - Fixed Width & Scrollable */}
+      {/* Pagination */}
       <div className="overflow-x-auto w-full min-w-max mt-2 text-sm">
         <div className="w-full min-w-max bg-white opacity-50 rounded-lg flex justify-between items-center p-3">
           <div className="text-secondary-1">
