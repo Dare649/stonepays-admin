@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { getAllOrder } from "@/redux/slice/orders/order";
 import { startLoading, stopLoading } from "@/redux/slice/loadingSlice";
+import { getAllProduct } from "@/redux/slice/product/product";
 
 type ColumnType = {
   key: string;
@@ -21,6 +22,9 @@ const Orders = () => {
   const dispatch = useDispatch<AppDispatch>();
   const allOrder = useSelector((state: RootState) =>
     Array.isArray(state.order?.allOrder) ? state.order.allOrder : []
+  );
+  const allProduct = useSelector((state: RootState) =>
+    Array.isArray(state.product?.allProduct) ? state.product.allProduct : []
   );
 
   const formatDateTime = (isoString: string | null | undefined): string => {
@@ -54,6 +58,22 @@ const Orders = () => {
     fetchData();
   }, [dispatch]);
 
+  // get all products so as to compare with the product id in the order table to fix the product name
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        dispatch(startLoading());
+        await dispatch(getAllProduct()).unwrap();
+      } catch (error: any) {
+        toast.error(error.message || "Failed to fetch products");
+      } finally {
+        dispatch(stopLoading());
+      }
+    };
+
+    fetchProduct();
+  }, [dispatch]);
+
   const actions = useMemo(
     () => [
       {
@@ -67,6 +87,11 @@ const Orders = () => {
     ],
     [router]
   );
+
+  const getProductName = (productId: string) => {
+    const product = allProduct.find((p) => p.id === productId);
+    return product ? product.product_name : "Unknown Product";
+  };
   
   const columns: ColumnType[] = [
     { key: "createdAt", label: "Date", render: (row) => formatDateTime(row.createdAt) },
@@ -78,16 +103,15 @@ const Orders = () => {
     {
       key: "product_name",
       label: "Product Name",
-      render: (row) => row.products?.[0]?.product_details?.product_name || "N/A",
+      render: (row) => getProductName(row.products?.[0]?.product_details?._id )|| "N/A",
     },
-    {
-      key: "product_category",
-      label: "Product Category",
-      render: (row) =>
-        row.products?.[0]?.product_details?.product_category,
-    },
+    // {
+    //   key: "product_category",
+    //   label: "Product Category",
+    //   render: (row) =>
+    //     row.products?.[0]?.product_details?.product_category,
+    // },
     { key: "total_price", label: "Amount", render: (row) => `₦${row.total_price}` },
-    { key: "payment_method", label: "Payment Method", render: (row) => row.payment_method || "N/A" },
     {
       key: "status",
       label: "Status",
@@ -105,12 +129,19 @@ const Orders = () => {
 
   const formattedOrders = useMemo(
     () =>
-      allOrder.map((item) => ({
-        ...item,
-        id: item._id, // Ensure each row has a unique `id`
-      })),
+      [...allOrder]
+        .map((item) => ({
+          ...item,
+          id: item._id, // Ensure each row has a unique `id`
+        }))
+        .sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0; // Default to 0 if undefined
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA; // Sort descending (newest first)
+        }),
     [allOrder]
   );
+  
 
   return (
     <section className="w-full">

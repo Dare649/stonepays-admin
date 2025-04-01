@@ -42,90 +42,99 @@ const OrderDetails = () => {
       <h1 className="font-bold mb-4 uppercase text-primary-1 text-md">Order Details</h1>
 
       {orderDetails ? (
-          <div className="border-x-0 border-secondary-1 border-y-2 lg:p-3 sm:p-1 my-3 w-full">
-            <div className="w-full">
-                <h2 className="text-secondary-1 font-bold uppercase ">User Details</h2>
-                <div className="w-full grid lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-8">
-                    <div className="w-20 h-20 rounded-full">
-                        <img
-                            src={orderDetails.user_details.user_img}
-                            alt="User Profile"
-                            className="w-full"
-                        />
-                    </div>
-                    <div>
-                        <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">first name</h3>
-                        <h3 className="capitalize text-secondary-1 font-bold">{orderDetails.user_details.first_name}</h3>
-                    </div>
-                    <div>
-                        <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">last name</h3>
-                        <h3 className="capitalize text-secondary-1 font-bold">{orderDetails.user_details.last_name}</h3>
-                    </div>
-                    <div>
-                        <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">email</h3>
-                        <h3 className="text-secondary-1 font-bold">{orderDetails.user_details.email}</h3>
-                    </div>
-                </div>
-            </div>
-            
-          <div className="border-x-0 border-secondary-1 border-y-2 lg:p-3 sm:p-1 my-3 w-full">
-            <h2 className="text-secondary-1 font-bold uppercase ">product Details</h2>
-            {orderDetails.products.map((product: any) => (
-              <div key={product._id} className="w-full grid lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-8">
-
-                <div>
-                    <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">product name</h3>
-                    <h3 className="text-secondary-1 font-bold capitalize"> {product.product_details.product_name}</h3>
-                </div>
-                <div>
-                    <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">product category</h3>
-                    <h3 className="text-secondary-1 font-bold capitalize"> {product.product_details.product_category.join(", ")}</h3>
-                </div>
-                <div>
-                    <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">quantity</h3>
-                    <h3 className="text-secondary-1 font-bold capitalize"> {product.quantity}</h3>
-                </div>
-                <div>
-                    <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">product category</h3>
-                    <h3 className="text-secondary-1 font-bold capitalize"> {product.price}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Order Summary */}
-
-          <div className="w-full">
-                <h2 className="text-secondary-1 font-bold uppercase ">payment details</h2>
-                <div className="w-full grid lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-8">
-                    <div>
-                        <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">status</h3>
-                        <h3
-                            className={`capitalize font-bold ${
-                                orderDetails?.status === "Pending" 
-                                ? "text-orange-300" 
-                                : "text-green-600"
-                            }`}
-                            >
-                            {orderDetails?.status || "Unknown Status"}
-                        </h3>
-
-                    </div>
-                    <div>
-                        <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">amount</h3>
-                        <h3 className="capitalize text-secondary-1 font-bold">{orderDetails.total_price}</h3>
-                    </div>
-                    <div>
-                        <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">payment method</h3>
-                        <h3 className="text-secondary-1 font-bold">{orderDetails.payment_method}</h3>
-                    </div>
-                </div>
-            </div>
-          
+  <div className="border-x-0 border-secondary-1 border-y-2 lg:p-3 sm:p-1 my-3 w-full">
+    {/* User Details */}
+    <div className="w-full">
+      <h2 className="text-secondary-1 font-bold uppercase">User Details</h2>
+      <div className="w-full grid lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-8">
+        <div className="w-20 h-20 rounded-full overflow-hidden">
+          <img
+            src={orderDetails?.user_details?.user_img || "/default-user.png"}
+            alt="User Profile"
+            className="w-full h-full object-cover"
+          />
         </div>
+        <div>
+          <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">First Name</h3>
+          <h3 className="capitalize text-secondary-1 font-bold">
+            {orderDetails?.user_details?.first_name || "N/A"}
+          </h3>
+        </div>
+        <div>
+          <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Last Name</h3>
+          <h3 className="capitalize text-secondary-1 font-bold">
+            {orderDetails?.user_details?.last_name || "N/A"}
+          </h3>
+        </div>
+        <div>
+          <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Email</h3>
+          <h3 className="text-secondary-1 font-bold">{orderDetails?.user_details?.email || "N/A"}</h3>
+        </div>
+      </div>
+    </div>
+
+    {/* Product Details */}
+    <div className="border-x-0 border-secondary-1 border-y-2 lg:p-3 sm:p-1 my-3 w-full">
+      <h2 className="text-secondary-1 font-bold uppercase">Product Details</h2>
+      {orderDetails?.products?.length > 0 ? (
+        orderDetails.products.map((product: any) => (
+          <div key={product?._id} className="w-full grid lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-8">
+            <div>
+              <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Product Name</h3>
+              <h3 className="text-secondary-1 font-bold capitalize">{product?.product_details?.product_name || "N/A"}</h3>
+            </div>
+            <div>
+              <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Product Category</h3>
+              <h3 className="text-secondary-1 font-bold capitalize">
+                {product?.product_details?.product_category?.join(", ") || "N/A"}
+              </h3>
+            </div>
+            <div>
+              <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Quantity</h3>
+              <h3 className="text-secondary-1 font-bold capitalize">{product?.quantity || "0"}</h3>
+            </div>
+            <div>
+              <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Price</h3>
+              <h3 className="text-secondary-1 font-bold capitalize">{product?.price ? `$${product.price}` : "N/A"}</h3>
+            </div>
+          </div>
+        ))
       ) : (
-        <p className="text-center text-primary-1">Loading order details...</p>
+        <p className="text-primary-1">No products available.</p>
       )}
+    </div>
+
+    {/* Payment Details */}
+    <div className="w-full">
+      <h2 className="text-secondary-1 font-bold uppercase">Payment Details</h2>
+      <div className="w-full grid lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-8">
+        <div>
+          <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Status</h3>
+          <h3
+            className={`capitalize font-bold ${
+              orderDetails?.status === "Pending" ? "text-orange-300" : "text-green-600"
+            }`}
+          >
+            {orderDetails?.status || "Unknown Status"}
+          </h3>
+        </div>
+        <div>
+          <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Amount</h3>
+          <h3 className="capitalize text-secondary-1 font-bold">
+            {orderDetails?.total_price ? `$${orderDetails.total_price}` : "N/A"}
+          </h3>
+        </div>
+        <div>
+          <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Payment Method</h3>
+          <h3 className="text-secondary-1 font-bold">{orderDetails?.payment_method || "N/A"}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+) : (
+  <p className="text-center text-primary-1">Loading order details...</p>
+)}
+
     </div>
   );
 };

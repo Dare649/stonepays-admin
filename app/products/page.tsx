@@ -38,19 +38,19 @@ const Products = () => {
   }, [dispatch]);
 
   // Action handlers for table
-  const actions = useMemo(
-    () => [
-      {
-        label: "View",
-        className: "text-primary-1 cursor-pointer",
-        onClick: (row: any) => {
-          console.log("Row ID:", row.id); // Logs the row ID to the console
-          router.push(`/orders/${row.id}`);
-        },
-      },
-    ],
-    [router]
-  );
+  // const actions = useMemo(
+  //   () => [
+  //     {
+  //       label: "View",
+  //       className: "text-primary-1 cursor-pointer",
+  //       onClick: (row: any) => {
+  //         console.log("Row ID:", row.id); // Logs the row ID to the console
+  //         router.push(`/orders/${row.id}`);
+  //       },
+  //     },
+  //   ],
+  //   [router]
+  // );
 
   // Function to toggle the modal
   const handleOpen = () => {
@@ -106,7 +106,7 @@ const Products = () => {
         </button>
       </div>
       <div className="w-full border-primary-1 border-2 rounded-2xl lg:mt-20 sm:mt-10 lg:p-5 sm:p-2">
-        <Table data={formattedProducts} columns={columns} actions={actions} />
+        <Table data={formattedProducts} columns={columns}  />
       </div>
       {open && (
         <Modal visible={open} onClose={handleOpen}>

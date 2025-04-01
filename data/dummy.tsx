@@ -13,11 +13,11 @@ export const nav = [
         path: '/orders',
         icon: <LuPackage size={25}/>
     },
-    {
-        title: 'transactions',
-        path: '/transactions',
-        icon: <LuChartNoAxesCombined size={25}/>
-    },
+    // {
+    //     title: 'transactions',
+    //     path: '/transactions',
+    //     icon: <LuChartNoAxesCombined size={25}/>
+    // },
     {
         title: 'users',
         path: '/users',
