@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoMdClose } from "react-icons/io";
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,15 +8,17 @@ import { startLoading, stopLoading } from '@/redux/slice/loadingSlice';
 import { RootState } from '@/redux/store';
 import { product_category } from '@/data/dummy';
 import Select from 'react-select';
-import { createProduct } from '@/redux/slice/product/product';
+import { createProduct, getAllProduct, updateProduct } from '@/redux/slice/product/product';
 import ImageUploader from '../image-upload/page';
 import { useRouter } from 'next/navigation';
 
 interface CreateProductProps {
     handleClose: () => void;
+    productData?: FormState | null;
 }
 
 interface FormState {
+    _id?: string;
     product_name: string;
     product_category: string;
     product_price: number;
@@ -25,7 +27,7 @@ interface FormState {
     product_qty: number;
 }
 
-const CreateProduct = ({ handleClose }: CreateProductProps) => {
+const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
     const dispatch = useDispatch<any>();
     const isLoading = useSelector((state: RootState) => state.loading.isLoading);
     const router = useRouter();
@@ -39,7 +41,18 @@ const CreateProduct = ({ handleClose }: CreateProductProps) => {
         product_qty: 0,
     });
 
-
+    useEffect(() => {
+        if (productData) {
+            setFormData({
+                product_name: productData.product_name || "",
+                product_category: productData.product_category || "",
+                product_price: productData.product_price || 0,
+                product_description: productData.product_description || "",
+                product_img: productData.product_img || "",
+                product_qty: productData.product_qty || 0,
+            });
+        }
+    }, [productData]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
@@ -47,7 +60,7 @@ const CreateProduct = ({ handleClose }: CreateProductProps) => {
           ...prevData,
           [name]: ["product_qty", "product_price"].includes(name) ? (value === "" ? "" : Number(value)) : value,
         }));
-      };
+    };
 
     const handleCategoryChange = (selectedOption: any) => {
         setFormData((prevData) => ({
@@ -76,25 +89,65 @@ const CreateProduct = ({ handleClose }: CreateProductProps) => {
         return Object.keys(newErrors).length === 0;
     };
 
+    const convertImageToBase64 = async (url: string) => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        return new Promise((resolve) => {
+            reader.onloadend = () => resolve(reader.result);
+        });
+    };
+    
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!validateForm()) return;
-
+    
         dispatch(startLoading());
-
+    
         try {
-            const response = await dispatch(createProduct(formData) as any).unwrap();
-            if (response?.success) {
-                toast.success("Product created successfully!");
+            const formattedData = {
+                ...formData,
+                product_price: Number(formData.product_price),
+                product_qty: Number(formData.product_qty),
+            };
+    
+            // If the product image is a URL, convert it to Base64
+            if (formattedData.product_img) {
+                const base64Image = await convertImageToBase64(formattedData.product_img);
+                formattedData.product_img = base64Image as string;
+            }
+    
+            let result;
+            if (productData?._id) {
+                // Update the product with the correct ID in the URL
+                result = await dispatch(updateProduct({
+                    id: productData._id,
+                    data: formattedData,
+                }) as any).unwrap();
+                dispatch(getAllProduct());
+            } else {
+                // Create a new product
+                result = await dispatch(createProduct(formattedData) as any).unwrap();
+            }
+    
+            if (result?.success) {
+                toast.success(productData?._id ? "Product updated successfully!" : "Product created successfully!");
                 handleClose();
+            } else {
+                throw new Error(result?.message || "Failed to submit form");
             }
         } catch (error: any) {
+            console.error('Error during product submission:', error);
             toast.error(error.message || "Failed to create product, try again!");
             handleClose();
         } finally {
             dispatch(stopLoading());
         }
     };
+    
+    
 
     const categoryOptions = product_category.map((item) => ({
         value: item,
@@ -104,7 +157,7 @@ const CreateProduct = ({ handleClose }: CreateProductProps) => {
     return (
         <div className="w-full h-[80vh] flex flex-col">
             <div className="flex items-center justify-between">
-                <h2 className="font-bold lg:text-xl sm:text-lg capitalize">Create Product</h2>
+                <h2 className="font-bold lg:text-xl sm:text-lg capitalize">{productData?._id ? "Update Product" : "Create Product"}</h2>
                 <div onClick={handleClose}>
                     <IoMdClose size={30} className="text-red-500 cursor-pointer" />
                 </div>
@@ -207,7 +260,7 @@ const CreateProduct = ({ handleClose }: CreateProductProps) => {
                         type="submit"
                         className="rounded-lg bg-primary-1 w-full text-white hover:text-primary-1 hover:bg-transparent hover:border-2 hover:border-primary-1 outline-none py-3 cursor-pointer capitalize"
                     >
-                        {isLoading ? "creating..." : "create product"}
+                        {isLoading ? "Processing..." : productData?._id ? "Update Product" : "Create Product"}
                     </button>
                 </form>
             </div>

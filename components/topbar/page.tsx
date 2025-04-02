@@ -102,7 +102,7 @@ const Topbar = () => {
       {openMenu && (
         <Modal onClose={handleToggleMenu} visible={openMenu}>
           <div className="w-full h-screen flex">
-            <div className="w-[80%] h-full bg-white border-r-2 border-primary-1 p-5 relative">
+            <div className="w-full h-full  p-5 relative">
               <div className="w-[30%]">
                 <Image
                   src={'/logo.png'}
@@ -129,7 +129,7 @@ const Topbar = () => {
               </div>
 
               <div 
-                className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex items-center"
+                className="fixed bottom-5 left-1/2 transform -translate-x-1/2 flex items-center"
               >
                 <button onClick={handleSignout} className="bg-red-600 text-white font-bold capitalize rounded-lg p-2 flex items-center gap-x-1">
                   <span><IoLogOutOutline size={25}/></span>
@@ -139,7 +139,7 @@ const Topbar = () => {
 
               {/* Close icon */}
               <button
-                className="absolute top-5 right-5 text-primary-1 font-bold text-2xl"
+                className="absolute top-5 right-0 text-primary-1 font-bold text-2xl"
                 onClick={handleToggleMenu}
               >
                 <IoMdClose size={25}/>

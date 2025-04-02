@@ -83,3 +83,18 @@ export const getAllProduct = createAsyncThunk(
         }
     }
 )
+
+
+export const getProductCount = createAsyncThunk(
+    "product/getProductCount",
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get(`/product/total_count`);
+            return response.data.data;
+        } catch (error: any) {
+            return rejectWithValue({
+                message: error.response?.data?.message || error.message || "Failed to get products counts, try again"
+            });
+        }
+    }
+)

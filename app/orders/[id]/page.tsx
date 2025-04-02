@@ -7,6 +7,9 @@ import { toast } from "react-toastify";
 import { getOrder } from "@/redux/slice/orders/order";
 import { RootState, AppDispatch } from "@/redux/store";
 import { startLoading, stopLoading } from "@/redux/slice/loadingSlice";
+import Link from "next/link";
+import { FaArrowLeftLong } from "react-icons/fa6";
+
 
 const OrderDetails = () => {
   const params = useParams();
@@ -40,7 +43,10 @@ const OrderDetails = () => {
   return (
     <div className="w-full border-2 border-primary-1 rounded-xl lg:p-5 sm:p-2">
       <h1 className="font-bold mb-4 uppercase text-primary-1 text-md">Order Details</h1>
-
+      <Link href={"/orders"} className="font-bold mb-4 text-primary-1 text-md flex items-center gap-2">
+      <span><FaArrowLeftLong/></span>
+      <span>back</span>
+      </Link>
       {orderDetails ? (
   <div className="border-x-0 border-secondary-1 border-y-2 lg:p-3 sm:p-1 my-3 w-full">
     {/* User Details */}

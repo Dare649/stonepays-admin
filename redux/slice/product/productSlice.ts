@@ -4,7 +4,8 @@ import {
     deleteProduct,
     getAllProduct,
     getProduct,
-    updateProduct
+    updateProduct,
+    getProductCount
 } from "./product";
 
 
@@ -28,6 +29,7 @@ interface ProductState {
     getAllProductStatus:  "idle" | "isLoading" | "succeeded" | "failed";
     deleteProductStatus:  "idle" | "isLoading" | "succeeded" | "failed";
     getProductStatus:  "idle" | "isLoading" | "succeeded" | "failed";
+    getProductCountStatus:  "idle" | "isLoading" | "succeeded" | "failed";
     product: ProductData | null;
     allProduct: ProductData[];
     error: string | null;
@@ -38,6 +40,7 @@ const initialState: ProductState = {
     createProductStatus: "idle",
     updateProductStatus: "idle",
     getProductStatus: "idle",
+    getProductCountStatus: "idle",
     getAllProductStatus: "idle",
     deleteProductStatus: "idle",
     product: null,
@@ -79,18 +82,23 @@ const productSlice = createSlice({
             })
 
 
-            // update product
-            .addCase(updateProduct.pending, (state) => {
-                state.updateProductStatus = "isLoading";
-            })
             .addCase(updateProduct.fulfilled, (state, action) => {
                 state.updateProductStatus = "succeeded";
-                state.allProduct = Array.isArray(state.allProduct) ? state.allProduct.map((log) => log._id === action.payload
-            ._id ? action.payload : log) : [action.payload];
+                state.allProduct = state.allProduct.map((product) =>
+                    product._id === action.payload._id ? action.payload : product
+                );
+                // Dispatch getAllProduct to refresh the product list
+                state.allProduct = state.allProduct.map((product) =>
+                    product._id === action.payload._id ? action.payload : product
+                );
 
-            if (state.product?._id === action.payload._id) {
-                state.product = action.payload;
-            }
+                // Optionally, update the currently selected product if necessary
+                if (state.product?._id === action.payload._id) {
+                    state.product = action.payload;
+                }
+
+                // Refresh the product list by dispatching the `getAllProduct` action
+                // You might want to dispatch this action in the component where the update happens
             })
             .addCase(updateProduct.rejected, (state, action) => {
                 state.updateProductStatus = "failed";
@@ -111,7 +119,7 @@ const productSlice = createSlice({
                 state.error = action.error.message ?? "Failed to get product";
             })
 
-            // get products by category
+            // get products 
             .addCase(getAllProduct.pending, (state) => {
                 state.getAllProductStatus = "isLoading";
             })
@@ -121,6 +129,19 @@ const productSlice = createSlice({
             })            
             .addCase(getAllProduct.rejected, (state, action) => {
                 state.getAllProductStatus = "failed";
+                state.error = action.error.message ?? "Failed to get all products by category";
+            })
+
+            // get products count
+            .addCase(getProductCount.pending, (state) => {
+                state.getProductCountStatus = "isLoading";
+            })
+            .addCase(getProductCount.fulfilled, (state, action) => {
+                state.getProductCountStatus = "succeeded";
+                state.product = action.payload;
+            })            
+            .addCase(getProductCount.rejected, (state, action) => {
+                state.getProductCountStatus = "failed";
                 state.error = action.error.message ?? "Failed to get all products by category";
             })
 

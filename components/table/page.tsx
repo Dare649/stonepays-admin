@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useRef } from "react";
 import { BsThreeDots } from "react-icons/bs";
@@ -8,7 +8,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 interface Column<T> {
   key: keyof T;
   label: string;
-  render?: (item: T) => React.ReactNode; // Custom rendering for a column
+  render?: (item: T) => React.ReactNode;
 }
 
 interface Action<T> {
@@ -21,7 +21,8 @@ interface TableProps<T> {
   data: T[];
   columns: Column<T>[];
   actions?: Action<T>[]; // Optional action menu
-  itemsPerPageOptions?: number[];
+  itemsPerPageOptions?: number[]; // Options for items per page
+  pagination?: boolean; // New optional prop to control pagination visibility
 }
 
 const Table = <T extends { id: string | number }>({
@@ -29,6 +30,7 @@ const Table = <T extends { id: string | number }>({
   columns,
   actions = [],
   itemsPerPageOptions = [5, 10, 20],
+  pagination = true, // Default is true (pagination enabled)
 }: TableProps<T>) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(itemsPerPageOptions[0]);
@@ -94,47 +96,49 @@ const Table = <T extends { id: string | number }>({
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="overflow-x-auto w-full min-w-max mt-2 text-sm">
-        <div className="w-full min-w-max bg-white opacity-50 rounded-lg flex justify-between items-center p-3">
-          <div className="text-secondary-1">
-            {currentPage} - {itemsPerPage} of {data.length}
-          </div>
-          <div className="flex items-center gap-x-2 text-secondary-1">
-            <div className="flex items-center">
-              <p className="capitalize mr-2">Rows per page</p>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                className="cursor-pointer outline-none"
-              >
-                {itemsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+      {/* Pagination (only rendered if pagination is true) */}
+      {pagination && (
+        <div className="overflow-x-auto w-full min-w-max mt-2 text-sm">
+          <div className="w-full min-w-max bg-white opacity-50 rounded-lg flex justify-between items-center p-3">
+            <div className="text-secondary-1">
+              {currentPage} - {itemsPerPage} of {data.length}
             </div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              className="hover:bg-primary-1 bg-transparent hover:text-white border-2 border-secondary-1 rounded-lg p-1"
-              disabled={currentPage === 1}
-            >
-              <FaChevronLeft size={15} />
-            </button>
-            <span>
-              {currentPage} / {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              className="hover:bg-primary-1 bg-transparent hover:text-white border-2 border-secondary-1 rounded-lg p-1"
-              disabled={currentPage === totalPages}
-            >
-              <FaChevronRight size={15} />
-            </button>
+            <div className="flex items-center gap-x-2 text-secondary-1">
+              <div className="flex items-center">
+                <p className="capitalize mr-2">Rows per page</p>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                  className="cursor-pointer outline-none"
+                >
+                  {itemsPerPageOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="hover:bg-primary-1 bg-transparent hover:text-white border-2 border-secondary-1 rounded-lg p-1"
+                disabled={currentPage === 1}
+              >
+                <FaChevronLeft size={15} />
+              </button>
+              <span>
+                {currentPage} / {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className="hover:bg-primary-1 bg-transparent hover:text-white border-2 border-secondary-1 rounded-lg p-1"
+                disabled={currentPage === totalPages}
+              >
+                <FaChevronRight size={15} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

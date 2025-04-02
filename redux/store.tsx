@@ -6,6 +6,8 @@ import authReducer from '@/redux/slice/auth/authSlice';
 import orderReducer from '@/redux/slice/orders/orderSlice';
 import productReducer from "@/redux/slice/product/productSlice";
 import categoryReducer from '@/redux/slice/productCategory/productCategorySlice';
+import userReducer from "@/redux/slice/users/usersSlice";
+import topReducer from "@/redux/slice/top-order/topSlice"
 
 
 
@@ -19,6 +21,8 @@ const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 const persistedOrderReducer = persistReducer(persistConfig, orderReducer);
 const persistedProductReducer = persistReducer(persistConfig, productReducer);
 const persistedCategoryReducer = persistReducer(persistConfig, categoryReducer);
+const persistedUserReducer = persistReducer(persistConfig, userReducer);
+const persistedTopReducer = persistReducer(persistConfig, topReducer);
 
 
 
@@ -29,6 +33,8 @@ export const store = configureStore({
         order: persistedOrderReducer,
         product: persistedProductReducer,
         category: persistedCategoryReducer,
+        user: persistedUserReducer,
+        top: persistedTopReducer,
     },
 
     middleware: (getDefaultMiddleware) =>

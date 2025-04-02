@@ -23,6 +23,12 @@ interface Product {
     price: number;
     _id: string;
 }
+
+
+interface OrderChartParams {
+    startDate?: string; 
+    endDate?: string;
+  }
   
 interface OrderData {
     user_details: UserDetails;
@@ -54,7 +60,7 @@ export const getAllOrder = createAsyncThunk(
     "order/getAllOrders",
     async(_, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.get("order/get_orders");
+            const response = await axiosInstance.get("/order/get_orders");
             return response.data.data;
         } catch (error: any) {
             return rejectWithValue({
@@ -64,5 +70,79 @@ export const getAllOrder = createAsyncThunk(
     }
 )
 
+
+export const getOrderCount = createAsyncThunk(
+    "order/getOrderCount",
+    async(_, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get("/order/total_count");
+            return response.data.data;
+        } catch (error: any) {
+            return rejectWithValue({
+                message: error.response?.data?.message || error.message || "Failed to get order count, try again"
+            });
+        }
+    }
+)
+
+
+export const getTopOrders = createAsyncThunk(
+    "order/getTopOrders",
+    async(_, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get("/order/top_sold");
+            return response.data.data;
+        } catch (error: any) {
+            return rejectWithValue({
+                message: error.response?.data?.message || error.message || "Failed to get order count, try again"
+            });
+        }
+    }
+)
+
+
+export const getOrderChart = createAsyncThunk(
+    "order/getOrderChart",
+    async ({ startDate, endDate }: OrderChartParams, { rejectWithValue }) => {
+      try {
+       
+        // Validate date range
+        if (!startDate || !endDate) {
+          return rejectWithValue({ message: "Start date and end date are required." });
+        }
+  
+        // Construct query parameters
+        const queryParams = new URLSearchParams({  startDate, endDate });
+  
+        const response = await axiosInstance.get(`/order/by_period?${queryParams.toString()}`);
+        
+        return response.data?.data ?? []; // Ensure it always returns an array
+      } catch (error: any) {
+        return rejectWithValue({
+          message:
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch order chart data. Please try again.",
+        });
+      }
+    }
+  
+)
+
+
+export const deleteOrder = createAsyncThunk<string, string, { rejectValue: {message: string}}>(
+    "order/deleteOrder",
+    async (id, { rejectWithValue }) => {
+        try {
+            await axiosInstance.delete(`/order/delete_order/${id}`);
+            return id;
+        } catch (error: any) {
+            return rejectWithValue({
+                message: error.response?.data?.message || error.message || "Failed to delete user, try again"
+            });
+        }
+    }
+);
+  
 
 

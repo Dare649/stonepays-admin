@@ -6,7 +6,7 @@ import Table from "@/components/table/page";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
-import { getAllOrder } from "@/redux/slice/orders/order";
+import { getAllOrder, deleteOrder } from "@/redux/slice/orders/order";
 import { startLoading, stopLoading } from "@/redux/slice/loadingSlice";
 import { getAllProduct } from "@/redux/slice/product/product";
 
@@ -74,19 +74,7 @@ const Orders = () => {
     fetchProduct();
   }, [dispatch]);
 
-  const actions = useMemo(
-    () => [
-      {
-        label: "View",
-        className: "text-primary-1 cursor-pointer",
-        onClick: (row: any) => {
-          console.log("Row ID:", row.id); // Logs the row ID to the console
-          router.push(`/orders/${row.id}`);
-        },
-      },
-    ],
-    [router]
-  );
+  
 
   const getProductName = (productId: string) => {
     const product = allProduct.find((p) => p.id === productId);
@@ -103,29 +91,27 @@ const Orders = () => {
     {
       key: "product_name",
       label: "Product Name",
-      render: (row) => getProductName(row.products?.[0]?.product_details?._id )|| "N/A",
+      render: (row) => getProductName(row.products?.[0]?.product_details?._id) || "N/A",
     },
-    // {
-    //   key: "product_category",
-    //   label: "Product Category",
-    //   render: (row) =>
-    //     row.products?.[0]?.product_details?.product_category,
-    // },
     { key: "total_price", label: "Amount", render: (row) => `₦${row.total_price}` },
     {
       key: "status",
       label: "Status",
-      render: (row) => (
-        <span
-          className={`font-medium ${
-            row.status.toLowerCase() === "pending" ? "text-orange-300" : "text-green-500"
-          }`}
-        >
-          {row.status}
-        </span>
-      ),
+      render: (row) => {
+        const status = row.status?.toLowerCase() || ""; // Ensure 'status' is a valid string
+        return (
+          <span
+            className={`font-medium ${
+              status === "pending" ? "text-orange-300" : "text-green-500"
+            }`}
+          >
+            {row.status}
+          </span>
+        );
+      },
     },
   ];
+  
 
   const formattedOrders = useMemo(
     () =>
@@ -141,11 +127,70 @@ const Orders = () => {
         }),
     [allOrder]
   );
+
+
+   const handleDelete = async (orderId: string) => {
+      // Show confirmation toast
+      toast.info(
+        <div className="flex flex-col items-center text-center">
+          <p className="mb-4">Are you sure you want to delete this order?</p>
+          <div className="flex items-center gap-3">
+            <button
+              className="bg-red-500 text-white px-3 py-1 rounded"
+              onClick={async () => {
+                toast.dismiss(`delete-${orderId}`); // Dismiss the confirmation toast
+                dispatch(startLoading());
+                try {
+                  await dispatch(deleteOrder(orderId)).unwrap(); // Delete user by orderId
+                  toast.success("order deleted successfully");
+    
+                  // Refetch all orders after deletion
+                  await dispatch(getAllOrder()).unwrap();
+                } catch (error: any) {
+                  toast.error(error.message || "Failed to delete order");
+                } finally {
+                  dispatch(stopLoading());
+                }
+              }}
+            >
+              Yes
+            </button>
+            <button
+              className="bg-gray-300 px-3 py-1 rounded"
+              onClick={() => toast.dismiss(`delete-${orderId}`)} // Dismiss the confirmation toast
+            >
+              No
+            </button>
+          </div>
+        </div>,
+        { toastId: `delete-${orderId}` } // Unique toastId for each confirmation
+      );
+    };
+
+
+    const actions = useMemo(
+      () => [
+        {
+          label: "View",
+          className: "text-primary-1 cursor-pointer",
+          onClick: (row: any) => {
+            console.log("Row ID:", row.id); // Logs the row ID to the console
+            router.push(`/orders/${row.id}`);
+          },
+        },
+        {
+          label: "Delete",
+          className: "text-red-500 cursor-pointer",
+          onClick: (row: any) => handleDelete(row.id), // Call handleDelete
+        },
+      ],
+      [router]
+    );
   
 
   return (
     <section className="w-full">
-      <div className="w-full border-primary-1 border-2 rounded-2xl lg:mt-20 sm:mt-10 lg:p-5 sm:p-2">
+      <div className="w-full lg:mt-20 sm:mt-10 lg:p-5 sm:p-2">
         <Table data={formattedOrders} columns={columns} actions={actions} />
       </div>
     </section>
