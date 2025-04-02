@@ -180,7 +180,7 @@ const Products = () => {
     <section className="w-full">
       <div className="flex justify-end">
         <button
-          className="flex items-center gap-x-1 outline-none border-none bg-primary-1 text-white capitalize hover:border-2 hover:border-primary-1 hover:text-primary-1 hover:bg-transparent rounded-lg py-3 px-5"
+          className="flex items-center gap-x-1 outline-none bg-primary-1 text-white capitalize hover:border-2 hover:border-primary-1 hover:text-primary-1 hover:bg-transparent rounded-lg py-3 px-5 cursor-pointer"
           onClick={handleOpen}
         >
           <IoAdd size={25} />

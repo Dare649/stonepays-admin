@@ -45,7 +45,7 @@ const Sidebar = () => {
 
       {/* Sign Out Button (Centered in Sidebar) */}
       <div 
-        className="flex justify-center fixed bottom-20"
+        className="flex justify-center fixed bottom-10"
         
       >
         <button onClick={handleSignout} className="bg-red-600 cursor-pointer text-white font-bold capitalize rounded-lg p-2 flex items-center gap-x-1">
