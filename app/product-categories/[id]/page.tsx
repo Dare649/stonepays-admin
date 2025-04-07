@@ -9,6 +9,7 @@ import { RootState, AppDispatch } from "@/redux/store";
 import { startLoading, stopLoading } from "@/redux/slice/loadingSlice";
 import Link from "next/link";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { getAllCategory } from "@/redux/slice/productCategory/productCategory";
 
 
 const ProductDetails = () => {
@@ -19,6 +20,10 @@ const ProductDetails = () => {
   // Get product details from the Redux store
   const productDetails = useSelector((state: RootState) => state.product.product);
 
+  const allCategory = useSelector((state: RootState) =>
+      Array.isArray(state.category?.allCategory) ? state.category.allCategory : []
+    );
+
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) {
@@ -28,7 +33,8 @@ const ProductDetails = () => {
 
       try {
         dispatch(startLoading());
-        await dispatch(getProduct(id)); // Use the `id` safely as a string
+        await dispatch(getProduct(id));
+        await dispatch(getAllCategory()).unwrap();
       } catch (error: any) {
         toast.error("Failed to fetch product details.");
         console.error(error);
@@ -38,7 +44,13 @@ const ProductDetails = () => {
     };
 
     fetchProduct();
-  }, [id, dispatch]); // Add dependencies to avoid React warnings
+  }, [id, dispatch]);
+
+  const getProductName = (categoryId: string) => {
+    // Find the category by matching product_category_id
+    const category = allCategory.find((p) => p._id === categoryId); // Ensure the comparison uses '_id'
+    return category ? category.category_name : "Unknown Product";
+  };
 
   return (
     <div className="w-full border-2 border-primary-1 rounded-xl lg:p-5 sm:p-2">
@@ -58,7 +70,7 @@ const ProductDetails = () => {
               </div>
               <div>
                 <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Product Category</h3>
-                <h3 className="text-secondary-1 font-bold capitalize">{productDetails?.product_category || "N/A"}</h3>
+                <h3 className="text-secondary-1 font-bold capitalize">{getProductName(productDetails?.product_category_id) || "N/A"}</h3>
               </div>
               <div>
                 <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Product Price</h3>

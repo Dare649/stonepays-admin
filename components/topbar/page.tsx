@@ -11,14 +11,35 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { startLoading, stopLoading } from "@/redux/slice/loadingSlice";
-import { RootState } from "@/redux/store";
+import { RootState, AppDispatch } from "@/redux/store";
 import { getSignedInUser } from "@/redux/slice/auth/auth";
 
 const Topbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const isLoading = useSelector((state: RootState) => state.loading.isLoading);
+  const user = useSelector((state: RootState) => state.auth.user);
+
+
+  useEffect(() => {
+      const fetchUser = async () => {
+        dispatch(startLoading());
+    
+        try {
+          // Fetch categories first
+          await dispatch(getSignedInUser()).unwrap();
+    
+        } catch (error: any) {
+          toast.error("Failed to fetch product details.");
+          console.error(error);
+        } finally {
+          dispatch(stopLoading());
+        }
+      };
+    
+      fetchUser();
+    }, [dispatch]); 
 
 
   // function for sign out
@@ -69,11 +90,11 @@ const Topbar = () => {
             <div className="flex items-center gap-x-3">
               <div className="flex flex-col">
                 <h2 className="text-secondary-1 font-bold capitalize text-md">welcome,</h2>
-                <h3 className="capitalize text-primary-1">fola osibo</h3>
+                <h3 className="capitalize text-primary-1"><span>{user?.first_name}  </span><span>{user?.last_name}</span></h3>
               </div>
               <div className="w-10 h-10 rounded-full overflow-hidden">
                 <Image
-                  src={'/sign.jpg'}
+                  src={user?.user_img || "/logo.png"}
                   alt="stonepay-admin-app"
                   width={50}
                   height={50}

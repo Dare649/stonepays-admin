@@ -35,7 +35,7 @@ const Sidebar = () => {
           <Link
             href={item.path}
             key={id}
-            className="p-3 flex items-center gap-x-3 hover:bg-primary-1/60 rounded-lg cursor-pointer hover:text-white active:text-primary-1 font-semibold text-secondary-1 capitalize"
+            className="p-3 flex items-center gap-x-3 hover:bg-primary-1/60 rounded-lg cursor-pointer hover:text-white focus:text-primary-1 font-semibold text-secondary-1 capitalize"
           >
             <h2>{item.icon}</h2>
             <h2>{item.title}</h2>

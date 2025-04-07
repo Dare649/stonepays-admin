@@ -98,7 +98,7 @@ const Table = <T extends { _id: string | number }>({
       )}
     </tr>
   ))}
-        </tbody>
+    </tbody>
 
       </table>
 
