@@ -25,7 +25,7 @@ interface TableProps<T> {
   pagination?: boolean; // New optional prop to control pagination visibility
 }
 
-const Table = <T extends { id: string | number }>({
+const Table = <T extends { _id: string | number }>({
   data,
   columns,
   actions = [],
@@ -50,8 +50,8 @@ const Table = <T extends { id: string | number }>({
   };
 
   return (
-    <div className="w-full mt-5 overflow-x-auto">
-      <table className="w-full">
+    <div className="w-full h-full mt-5 overflow-x-auto">
+      <table className="w-full h-full">
         <thead>
           <tr className="text-primary-1 border-x-0 capitalize text-md">
             {columns.map((col) => (
@@ -62,38 +62,44 @@ const Table = <T extends { id: string | number }>({
             {actions.length > 0 && <th className="lg:py-3 lg:px-6 sm:px-2 sm:py-3 text-left align-middle">Actions</th>}
           </tr>
         </thead>
-        <tbody className="bg-white">
-          {currentItems.map((item) => (
-            <tr key={item.id} className="border-y-2 border-secondary-1">
-              {columns.map((col) => (
-                <td key={`${item.id}-${col.key.toString()}`} className="lg:py-3 lg:px-6 sm:px-2 sm:py-3 text-left align-middle">
-                  {col.render ? col.render(item) : (item[col.key] as React.ReactNode)}
-                </td>
-              ))}
-              {actions.length > 0 && (
-                <td className="lg:px-2 lg:py-5 font-bold cursor-pointer relative w-[20%]">
-                  <BsThreeDots onClick={() => handleActionClick(item.id)} />
-                  {view && selectedItemId === item.id && (
-                    <div
-                      ref={popupRef}
-                      className="absolute right-2.5 mt-1 z-10 bg-white w-full p-2 shadow-md rounded-lg"
-                    >
-                      {actions.map((action, index) => (
-                        <p
-                          key={index}
-                          onClick={() => action.onClick(item)}
-                          className={`block capitalize cursor-pointer text-primary-7 p-2 text-sm ${action.className || ""}`}
-                        >
-                          {action.label}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </td>
-              )}
-            </tr>
-          ))}
+        <tbody>
+  {currentItems.map((item) => (
+    <tr key={item._id}>
+      {columns.map((col) => (
+        <td key={col.key.toString()} className="lg:py-3 lg:px-6 sm:px-2 sm:py-3 text-left align-middle">
+          {col.render ? col.render(item) : (item[col.key] as React.ReactNode)}
+        </td>
+      ))}
+      {actions.length > 0 && (
+        <td className="relative px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+          <div className="relative inline-block text-left">
+            <button onClick={() => handleActionClick(item._id)}>
+              <BsThreeDots className="text-lg" />
+            </button>
+            {selectedItemId === item._id && view && (
+              <div ref={popupRef} className="absolute z-10 w-40 bg-white border rounded shadow-md right-0">
+                {actions.map((action, index) => (
+                  <div
+                    key={`${action.label}-${item._id}-${index}`}
+                    onClick={() => {
+                      action.onClick(item);
+                      setView(false);
+                    }}
+                    className={`cursor-pointer px-4 py-2 text-sm hover:bg-gray-100 ${action.className || ""}`}
+                  >
+                    {action.label}
+                  </div>
+                ))}
+
+              </div>
+            )}
+          </div>
+        </td>
+      )}
+    </tr>
+  ))}
         </tbody>
+
       </table>
 
       {/* Pagination (only rendered if pagination is true) */}

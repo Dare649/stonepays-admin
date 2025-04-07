@@ -40,6 +40,7 @@ interface OrderData {
     payment_date: string | null;
     _id: string;
     createdAt: string;
+    payment_status: string;
 }
 
 
@@ -101,6 +102,7 @@ export const getTopOrders = createAsyncThunk(
 )
 
 
+
 export const getOrderChart = createAsyncThunk(
     "order/getOrderChart",
     async ({ startDate, endDate }: OrderChartParams, { rejectWithValue }) => {
@@ -135,6 +137,21 @@ export const deleteOrder = createAsyncThunk<string, string, { rejectValue: {mess
     async (id, { rejectWithValue }) => {
         try {
             await axiosInstance.delete(`/order/delete_order/${id}`);
+            return id;
+        } catch (error: any) {
+            return rejectWithValue({
+                message: error.response?.data?.message || error.message || "Failed to delete user, try again"
+            });
+        }
+    }
+);
+
+
+export const updateOrderStatus = createAsyncThunk<string, string, { rejectValue: {message: string}}>(
+    "order/updateOrderStatus",
+    async (id, { rejectWithValue }) => {
+        try {
+            await axiosInstance.put(`/order/update_order_status/${id}`);
             return id;
         } catch (error: any) {
             return rejectWithValue({

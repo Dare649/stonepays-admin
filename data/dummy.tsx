@@ -1,4 +1,8 @@
-import { LuLayoutDashboard, LuPackage, LuChartNoAxesCombined, LuUserRound, LuShoppingCart  } from "react-icons/lu";
+import { LuLayoutDashboard,
+    LuPackage,
+    LuUserRound, 
+    LuShoppingCart  } from "react-icons/lu";
+    import { BiCategoryAlt } from "react-icons/bi";
 
 
 
@@ -27,6 +31,11 @@ export const nav = [
         title: 'products',
         path: '/products',
         icon: <LuShoppingCart size={25}/>
+    },
+    {
+        title: 'products categories',
+        path: '/product-categories',
+        icon: <BiCategoryAlt size={25}/>
     },
 ]
 

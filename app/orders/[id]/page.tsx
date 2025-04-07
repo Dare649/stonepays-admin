@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { getOrder } from "@/redux/slice/orders/order";
+import { getAllProduct } from "@/redux/slice/product/product";
+import { getAllCategory } from "@/redux/slice/productCategory/productCategory";
 import { RootState, AppDispatch } from "@/redux/store";
 import { startLoading, stopLoading } from "@/redux/slice/loadingSlice";
 import Link from "next/link";
@@ -18,6 +20,12 @@ const OrderDetails = () => {
 
   // Get order details from the Redux store
   const orderDetails = useSelector((state: RootState) => state.order.order);
+  const allProduct = useSelector((state: RootState) =>
+      Array.isArray(state.product?.allProduct) ? state.product.allProduct : []
+  );
+  const allCategory = useSelector((state: RootState) =>
+      Array.isArray(state.category?.allCategory) ? state.category.allCategory : []
+  );
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -28,7 +36,9 @@ const OrderDetails = () => {
 
       try {
         dispatch(startLoading());
-        await dispatch(getOrder(id)); // Use the `id` safely as a string
+        await dispatch(getOrder(id));
+        await dispatch(getAllProduct());
+        await dispatch(getAllCategory());
       } catch (error: any) {
         toast.error("Failed to fetch order details.");
         console.error(error);
@@ -38,7 +48,21 @@ const OrderDetails = () => {
     };
 
     fetchOrder();
-  }, [id, dispatch]); // Add dependencies to avoid React warnings
+  }, [id, dispatch]); 
+
+  const getProductName = (productId: string) => {
+    const product = allProduct.find((p) => p.id === productId);
+    return product ? product.product_name : "Unknown Product";
+  };
+
+  const getCategoryName = (categoryId: string) => {
+    const category = allCategory.find((p) => p.id === categoryId);
+    return category ? category.category_name : "Unknown Category";
+  };
+
+  const formatNumber = (num: number) => {
+    return Number(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   return (
     <div className="w-full border-2 border-primary-1 rounded-xl lg:p-5 sm:p-2">
@@ -87,12 +111,12 @@ const OrderDetails = () => {
           <div key={product?._id} className="w-full grid lg:grid-cols-3 sm:grid-cols-2 gap-5 mt-8">
             <div>
               <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Product Name</h3>
-              <h3 className="text-secondary-1 font-bold capitalize">{product?.product_details?.product_name || "N/A"}</h3>
+              <h3 className="text-secondary-1 font-bold capitalize">{getProductName(product?.product_details?.product_name) || "N/A"}</h3>
             </div>
             <div>
               <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Product Category</h3>
               <h3 className="text-secondary-1 font-bold capitalize">
-                {product?.product_details?.product_category?.join(", ") || "N/A"}
+                {getCategoryName(product?.product_details?.product_category?.join(", ")) || "N/A"}
               </h3>
             </div>
             <div>
@@ -101,7 +125,7 @@ const OrderDetails = () => {
             </div>
             <div>
               <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Price</h3>
-              <h3 className="text-secondary-1 font-bold capitalize">{product?.price ? `$${product.price}` : "N/A"}</h3>
+              <h3 className="text-secondary-1 font-bold capitalize">{product?.price ? `₦${formatNumber(product.price)}` : "N/A"}</h3>
             </div>
           </div>
         ))
@@ -118,16 +142,16 @@ const OrderDetails = () => {
           <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Status</h3>
           <h3
             className={`capitalize font-bold ${
-              orderDetails?.status === "Pending" ? "text-orange-300" : "text-green-600"
+              orderDetails?.payment_status === "Pending" ? "text-orange-300" : "text-green-600"
             }`}
           >
-            {orderDetails?.status || "Unknown Status"}
+            {orderDetails?.payment_status || "Unknown Status"}
           </h3>
         </div>
         <div>
           <h3 className="uppercase font-bold text-primary-1 text-xs mb-1">Amount</h3>
           <h3 className="capitalize text-secondary-1 font-bold">
-            {orderDetails?.total_price ? `$${orderDetails.total_price}` : "N/A"}
+            {orderDetails?.total_price ? `₦${orderDetails.total_price}` : "N/A"}
           </h3>
         </div>
         <div>

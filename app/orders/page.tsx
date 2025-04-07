@@ -6,7 +6,7 @@ import Table from "@/components/table/page";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
-import { getAllOrder, deleteOrder } from "@/redux/slice/orders/order";
+import { getAllOrder, deleteOrder, updateOrderStatus } from "@/redux/slice/orders/order";
 import { startLoading, stopLoading } from "@/redux/slice/loadingSlice";
 import { getAllProduct } from "@/redux/slice/product/product";
 
@@ -80,6 +80,13 @@ const Orders = () => {
     const product = allProduct.find((p) => p.id === productId);
     return product ? product.product_name : "Unknown Product";
   };
+
+
+  
+
+  const formatNumber = (num: number) => {
+    return Number(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
   
   const columns: ColumnType[] = [
     { key: "createdAt", label: "Date", render: (row) => formatDateTime(row.createdAt) },
@@ -93,22 +100,22 @@ const Orders = () => {
       label: "Product Name",
       render: (row) => getProductName(row.products?.[0]?.product_details?._id) || "N/A",
     },
-    { key: "total_price", label: "Amount", render: (row) => `₦${row.total_price}` },
+    { key: "total_price", label: "Amount", render: (row) => `₦${formatNumber(row.total_price)}` },
     {
-      key: "status",
+      key: "order_status",
       label: "Status",
       render: (row) => {
-        const status = row.status?.toLowerCase() || ""; // Ensure 'status' is a valid string
+        
         return (
           <span
-            className={`font-medium ${
-              status === "pending" ? "text-orange-300" : "text-green-500"
+            className={`font-bold ${
+              row.order_status === "Approved" ? "text-green-500" : "text-orange-500"
             }`}
           >
-            {row.status}
+            {row.order_status}
           </span>
         );
-      },
+      },    
     },
   ];
   
@@ -129,44 +136,83 @@ const Orders = () => {
   );
 
 
-   const handleDelete = async (orderId: string) => {
-      // Show confirmation toast
-      toast.info(
-        <div className="flex flex-col items-center text-center">
-          <p className="mb-4">Are you sure you want to delete this order?</p>
-          <div className="flex items-center gap-3">
-            <button
-              className="bg-red-500 text-white px-3 py-1 rounded"
-              onClick={async () => {
-                toast.dismiss(`delete-${orderId}`); // Dismiss the confirmation toast
-                dispatch(startLoading());
-                try {
-                  await dispatch(deleteOrder(orderId)).unwrap(); // Delete user by orderId
-                  toast.success("order deleted successfully");
-    
-                  // Refetch all orders after deletion
-                  await dispatch(getAllOrder()).unwrap();
-                } catch (error: any) {
-                  toast.error(error.message || "Failed to delete order");
-                } finally {
-                  dispatch(stopLoading());
-                }
-              }}
-            >
-              Yes
-            </button>
-            <button
-              className="bg-gray-300 px-3 py-1 rounded"
-              onClick={() => toast.dismiss(`delete-${orderId}`)} // Dismiss the confirmation toast
-            >
-              No
-            </button>
-          </div>
-        </div>,
-        { toastId: `delete-${orderId}` } // Unique toastId for each confirmation
-      );
-    };
+  
+  const handleDelete = async (orderId: string) => {
+     // Show confirmation toast
+     toast.info(
+       <div className="flex flex-col items-center text-center">
+         <p className="mb-4">Are you sure you want to delete this order?</p>
+         <div className="flex items-center gap-3">
+           <button
+             className="bg-red-500 text-white px-3 py-1 rounded"
+             onClick={async () => {
+               toast.dismiss(`delete-${orderId}`); // Dismiss the confirmation toast
+               dispatch(startLoading());
+               try {
+                 await dispatch(deleteOrder(orderId)).unwrap(); // Delete user by orderId
+                 toast.success("order deleted successfully");
+   
+                 // Refetch all orders after deletion
+                 await dispatch(getAllOrder()).unwrap();
+               } catch (error: any) {
+                 toast.error(error.message || "Failed to delete order");
+               } finally {
+                 dispatch(stopLoading());
+               }
+             }}
+           >
+             Yes
+           </button>
+           <button
+             className="bg-gray-300 px-3 py-1 rounded"
+             onClick={() => toast.dismiss(`delete-${orderId}`)} // Dismiss the confirmation toast
+           >
+             No
+           </button>
+         </div>
+       </div>,
+       { toastId: `delete-${orderId}` } // Unique toastId for each confirmation
+     );
+   };
 
+
+  const handleUpdateStatus = async (orderId: string) => {
+     // Show confirmation toast
+     toast.info(
+       <div className="flex flex-col items-center text-center">
+         <p className="mb-4">Are you sure you want to update this order status?</p>
+         <div className="flex items-center gap-3">
+           <button
+             className="bg-red-500 text-white px-3 py-1 rounded"
+             onClick={async () => {
+               toast.dismiss(`delete-${orderId}`); // Dismiss the confirmation toast
+               dispatch(startLoading());
+               try {
+                 await dispatch(updateOrderStatus(orderId)).unwrap(); // Delete user by orderId
+                 toast.success("order status updated successfully");
+   
+                 // Refetch all orders after deletion
+                 await dispatch(getAllOrder()).unwrap();
+               } catch (error: any) {
+                 toast.error(error.message || "Failed to update order status");
+               } finally {
+                 dispatch(stopLoading());
+               }
+             }}
+           >
+             Yes
+           </button>
+           <button
+             className="bg-gray-300 px-3 py-1 rounded"
+             onClick={() => toast.dismiss(`delete-${orderId}`)} // Dismiss the confirmation toast
+           >
+             No
+           </button>
+         </div>
+       </div>,
+       { toastId: `delete-${orderId}` } // Unique toastId for each confirmation
+     );
+   };
 
     const actions = useMemo(
       () => [
@@ -174,9 +220,13 @@ const Orders = () => {
           label: "View",
           className: "text-primary-1 cursor-pointer",
           onClick: (row: any) => {
-            console.log("Row ID:", row.id); // Logs the row ID to the console
             router.push(`/orders/${row.id}`);
           },
+        },
+        {
+          label: "Update Status",
+          className: "text-gray-500 cursor-pointer",
+          onClick: (row: any) => handleUpdateStatus(row.id), // Call handleDelete
         },
         {
           label: "Delete",

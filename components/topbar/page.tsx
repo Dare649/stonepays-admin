@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { IoMenuSharp, IoLogOutOutline } from "react-icons/io5";
 import { nav } from "@/data/dummy";
@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { startLoading, stopLoading } from "@/redux/slice/loadingSlice";
 import { RootState } from "@/redux/store";
+import { getSignedInUser } from "@/redux/slice/auth/auth";
 
 const Topbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
@@ -23,15 +24,25 @@ const Topbar = () => {
   // function for sign out
   const handleSignout = (event: React.FormEvent) => {
     event.preventDefault();
-
+  
     dispatch(startLoading());
-
-    setTimeout(() => {
-      router.push('/');
-      toast.success('Sign out success!');
+  
+    try {
+      // Remove token from localStorage & sessionStorage
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token"); // In case it's stored here
+  
+      // Redirect user to homepage
+      router.push("/");
+      
+      toast.success("Sign out success!");
+    } catch (error) {
+      toast.error("Sign out failed. Please try again.");
+    } finally {
       dispatch(stopLoading());
-    }, 3000)
-  }
+    }
+  };
+  
 
   // function to toggle menu
   const handleToggleMenu = () => {

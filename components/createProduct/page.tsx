@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { startLoading, stopLoading } from '@/redux/slice/loadingSlice';
 import { RootState } from '@/redux/store';
-import { product_category } from '@/data/dummy';
+import { getAllCategory } from '@/redux/slice/productCategory/productCategory';
 import Select from 'react-select';
 import { createProduct, getAllProduct, updateProduct } from '@/redux/slice/product/product';
 import ImageUploader from '../image-upload/page';
@@ -20,7 +20,7 @@ interface CreateProductProps {
 interface FormState {
     _id?: string;
     product_name: string;
-    product_category: string;
+    product_category_id: string;
     product_price: number;
     product_description: string;
     product_img: string;
@@ -29,12 +29,13 @@ interface FormState {
 
 const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
     const dispatch = useDispatch<any>();
+    const allCategory = useSelector((state: RootState) => state.category.allCategory);
     const isLoading = useSelector((state: RootState) => state.loading.isLoading);
     const router = useRouter();
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [formData, setFormData] = useState<FormState>({
         product_name: "",
-        product_category: "",
+        product_category_id: "",
         product_price: 0,
         product_description: "",
         product_img: "",
@@ -45,7 +46,7 @@ const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
         if (productData) {
             setFormData({
                 product_name: productData.product_name || "",
-                product_category: productData.product_category || "",
+                product_category_id: productData.product_category_id || "",
                 product_price: productData.product_price || 0,
                 product_description: productData.product_description || "",
                 product_img: productData.product_img || "",
@@ -53,6 +54,22 @@ const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
             });
         }
     }, [productData]);
+
+     useEffect(() => {
+        const fetchData = async () => {
+          try {
+            dispatch(startLoading());
+            await dispatch(getAllCategory()).unwrap();
+    
+          } catch (error: any) {
+            toast.error(error.message || "Failed to fetch categories");
+          } finally {
+            dispatch(stopLoading());
+          }
+        };
+    
+        fetchData();
+      }, [dispatch]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
@@ -65,7 +82,7 @@ const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
     const handleCategoryChange = (selectedOption: any) => {
         setFormData((prevData) => ({
             ...prevData,
-            product_category: selectedOption?.value || "",
+            product_category_id: selectedOption?.value || "",
         }));
     };
 
@@ -79,7 +96,7 @@ const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
         if (!formData.product_name) newErrors.product_name = "Product name is required.";
-        if (!formData.product_category) newErrors.product_category = "Product category is required.";
+        if (!formData.product_category_id) newErrors.product_category_id = "Product category is required.";
         if (!formData.product_description) newErrors.product_description = "Product description is required.";
         if (!formData.product_price) newErrors.product_price = "Product price is required.";
         if (!formData.product_qty) newErrors.product_qty = "Product quantity is required.";
@@ -149,9 +166,9 @@ const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
     
     
 
-    const categoryOptions = product_category.map((item) => ({
-        value: item,
-        label: item,
+    const categoryOptions = allCategory.map((item) => ({
+        value: item._id,
+        label: item.category_name,
     }));
 
     return (
@@ -186,8 +203,8 @@ const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
                     <div className="mb-3">
                         <label className="text-sm font-bold uppercase text-primary-1 mb-2 block">Product Category</label>
                         <Select
-                            name="product_category"
-                            value={categoryOptions.find(option => option.value === formData.product_category)}
+                            name="product_category_id"
+                            value={categoryOptions.find(option => option.value === formData.product_category_id)}
                             onChange={handleCategoryChange}
                             options={categoryOptions}
                             placeholder="Select a product category"
@@ -195,13 +212,13 @@ const CreateProduct = ({ handleClose, productData }: CreateProductProps) => {
                             styles={{
                                 control: (base) => ({
                                     ...base,
-                                    borderColor: errors.product_category ? "red" : "rgba(209, 213, 219, 1)", // Gray-300
+                                    borderColor: errors.product_category_id ? "red" : "rgba(209, 213, 219, 1)", // Gray-300
                                     borderWidth: "2px",
                                     borderRadius: "0.5rem",
                                 }),
                             }}
                         />
-                        {errors.product_category && <p className="text-red-500 text-sm">{errors.product_category}</p>}
+                        {errors.product_category_id && <p className="text-red-500 text-sm">{errors.product_category_id}</p>}
                     </div>
 
                     <div className="mb-3">

@@ -15,7 +15,11 @@ import { FiShoppingCart, FiUsers, FiPackage } from "react-icons/fi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getAllProduct } from "@/redux/slice/product/product";
+import { LiaMoneyBillAltSolid } from "react-icons/lia";
 import { getTopOrders } from "@/redux/slice/top-order/top";
+import { getTotalRevenue } from "@/redux/slice/revenue/revenue";
+import Link from "next/link";
+
 
 
 
@@ -34,6 +38,7 @@ const Dashboard = () => {
   const orderCount = useSelector((state: RootState) => state.order.order) || 0;
   const productCount = useSelector((state: RootState) => state.product.product) || 0;
   const userCount = useSelector((state: RootState) => state.user.user) || 0;
+  const revenue = useSelector((state: RootState) => state.revenue.revenue) || 0;
   const orderChartData = useSelector((state: RootState) => state.order.allOrder || []);
 
   const allProduct = useSelector((state: RootState) =>
@@ -69,6 +74,7 @@ const Dashboard = () => {
         await dispatch(getUserCount()).unwrap();
         await dispatch(getTopOrders()).unwrap();
         await dispatch(getAllProduct()).unwrap();
+        await dispatch(getTotalRevenue()).unwrap();
 
         // Ensure start & end dates are valid
         if (startDate && endDate) {
@@ -107,6 +113,10 @@ const Dashboard = () => {
         }).format(date);
   };
 
+  const formatNumber = (num: number) => {
+    return Number(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   const getProductName = (productId: string) => {
     const product = allProduct.find((p) => p.id === productId);
     return product ? product.product_name : "Unknown Product";
@@ -127,16 +137,15 @@ const Dashboard = () => {
     },
     { key: "product_name", label: "Product Name", render: (row) => row.product_name || "N/A" },
     { key: "total_sold", label: "Total Sold", render: (row) => row.total_sold },
-    { key: "total_revenue", label: "Total Revenue", render: (row) => `₦${row.total_revenue}` },
+    { key: "total_revenue", label: "Total Revenue", render: (row) => `₦${formatNumber(row.total_revenue)}` },
   ];
 
   const formattedOrders = useMemo(
-    
     () =>
       [...allTop]
         .map((item) => ({
           ...item,
-          id: item.product_id, // Ensure each row has a unique `id`
+          id: item.product_id, // Ensure unique `id` for the key
         }))
         .sort((a, b) => {
           const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -146,14 +155,16 @@ const Dashboard = () => {
     [allTop]
   );
   
+  
 
   return (
     <div className="space-y-6 w-full">
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatsCard icon={<FiShoppingCart />} title="Order Count" value={orderCount.toString()} />
-        <StatsCard icon={<FiPackage />} title="Product Count" value={productCount.toString()} />
-        <StatsCard icon={<FiUsers />} title="User Count" value={userCount.toString()} />
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+        <Link href={"/orders"}><StatsCard icon={<FiShoppingCart />} title="Order Count" value={orderCount.toString()} /></Link>
+        <Link href={"/products"}><StatsCard icon={<FiPackage />} title="Product Count" value={productCount.toString()} /></Link>
+        <Link href={"/users"}><StatsCard icon={<FiUsers />} title="User Count" value={userCount.toString()} /></Link>
+        <Link href={"/orders"}><StatsCard icon={<LiaMoneyBillAltSolid />} title="Total Revenue" value={formatNumber(revenue)} /></Link>
       </div>
 
       {/* Sales Overview Section */}

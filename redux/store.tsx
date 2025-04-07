@@ -7,7 +7,8 @@ import orderReducer from '@/redux/slice/orders/orderSlice';
 import productReducer from "@/redux/slice/product/productSlice";
 import categoryReducer from '@/redux/slice/productCategory/productCategorySlice';
 import userReducer from "@/redux/slice/users/usersSlice";
-import topReducer from "@/redux/slice/top-order/topSlice"
+import topReducer from "@/redux/slice/top-order/topSlice";
+import revenueReducer from "@/redux/slice/revenue/revenueSlice";
 
 
 
@@ -23,6 +24,7 @@ const persistedProductReducer = persistReducer(persistConfig, productReducer);
 const persistedCategoryReducer = persistReducer(persistConfig, categoryReducer);
 const persistedUserReducer = persistReducer(persistConfig, userReducer);
 const persistedTopReducer = persistReducer(persistConfig, topReducer);
+const persistedRevenueReducer = persistReducer(persistConfig, revenueReducer);
 
 
 
@@ -35,6 +37,7 @@ export const store = configureStore({
         category: persistedCategoryReducer,
         user: persistedUserReducer,
         top: persistedTopReducer,
+        revenue: persistedRevenueReducer,
     },
 
     middleware: (getDefaultMiddleware) =>

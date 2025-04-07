@@ -5,7 +5,8 @@ import {
     getOrderCount,
     getOrderChart,
     getTopOrders,
-    deleteOrder
+    deleteOrder,
+    updateOrderStatus,
 } from "./order";
 
 interface UserDetails {
@@ -41,6 +42,7 @@ interface OrderData {
     payment_date: string | null;
     _id?: string;
     createdAt?: string;
+    payment_status: string;
 }
 
 interface OrderState {
@@ -50,6 +52,7 @@ interface OrderState {
     getOrderChartStatus: "idle" | "isLoading" | "succeeded" | "failed";
     getTopOrdersStatus: "idle" | "isLoading" | "succeeded" | "failed";
     deleteOrderStatus: "idle" | "isLoading" | "succeeded" | "failed";
+    updateOrderStatusStatus: "idle" | "isLoading" | "succeeded" | "failed";
     order: OrderData | null;
     allOrder: OrderData[];
     error: string | null;
@@ -64,6 +67,7 @@ const initialState: OrderState = {
     getOrderChartStatus: "idle",
     getTopOrdersStatus: "idle",
     deleteOrderStatus: "idle",
+    updateOrderStatusStatus: "idle",
     order: null,
     allOrder: [],
     error: null,
@@ -173,6 +177,25 @@ const orderSlice = createSlice({
             })
             .addCase(deleteOrder.rejected, (state, action) => {
                 state.deleteOrderStatus = "failed";
+                state.error = action.error.message ?? "Failed to delete order";
+            })
+
+            // update order status
+            .addCase(updateOrderStatus.pending, (state) => {
+                state.updateOrderStatusStatus = "isLoading";
+            })
+            .addCase(updateOrderStatus.fulfilled, (state, action) => {
+                state.updateOrderStatusStatus = "succeeded";
+                state.allOrder = Array.isArray(state.allOrder)
+                    ? state.allOrder.filter((log) => log._id !== action.payload)
+                    : [];
+            
+                if (state.order?._id === action.payload) {
+                    state.order = null; 
+                }
+            })
+            .addCase(updateOrderStatus.rejected, (state, action) => {
+                state.updateOrderStatusStatus = "failed";
                 state.error = action.error.message ?? "Failed to delete order";
             });
     },
